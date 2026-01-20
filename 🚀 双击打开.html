@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelPerfect Type - 一键启动</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            font-size: 1.2em;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .big-button {
+            display: inline-block;
+            padding: 20px 50px;
+            margin: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .big-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .secondary-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .instructions {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        code {
+            background: #ffe8e8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #e91e63;
+            font-family: 'Courier New', monospace;
+        }
+
+        .checking {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 PixelPerfect Type</h1>
+        <p style="color: #999; margin-bottom: 30px;">字体验收工具 - 一键启动</p>
+
+        <div class="status" id="status">
+            正在检查服务状态<span class="checking"></span>
+        </div>
+
+        <div id="buttons" style="display: none;">
+            <a href="http://localhost:9090" class="big-button" target="_blank">
+                🚀 打开工具
+            </a>
+            <br>
+            <a href="http://localhost:9090/guide" class="big-button secondary-button" target="_blank">
+                📖 查看指南
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 如果服务未启动</h3>
+            <ol>
+                <li>打开<strong>终端</strong>（按 Command + 空格，输入 terminal）</li>
+                <li>复制粘贴以下命令并回车：
+                    <br><br>
+                    <code>cd ~/Documents/代码/字号自动测量器2 && ./一键安装启动.sh</code>
+                </li>
+                <li>等待看到 "服务已启动" 提示（首次需要安装依赖，约3-5分钟）</li>
+                <li>点击上面的 <strong>🚀 打开工具</strong> 按钮</li>
+            </ol>
+            <br>
+            <p style="color: #666; font-size: 0.9em;">
+                💡 <strong>提示：</strong>或者双击项目文件夹中的 <code>PixelPerfect启动器.app</code> 自动启动服务
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 检查服务是否运行
+        async function checkService() {
+            const statusEl = document.getElementById('status');
+            const buttonsEl = document.getElementById('buttons');
+
+            try {
+                const response = await fetch('http://localhost:9090/health', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="success">✅ 服务已运行！点击下方按钮开始使用</span>';
+                    buttonsEl.style.display = 'block';
+                } else {
+                    throw new Error('Service not running');
+                }
+            } catch (error) {
+                statusEl.innerHTML = '<span class="error">⚠️ 服务未启动</span><br><small style="color: #999;">请按照下方说明启动服务</small>';
+                buttonsEl.style.display = 'none';
+
+                // 每5秒重试一次
+                setTimeout(checkService, 5000);
+            }
+        }
+
+        // 页面加载时检查
+        checkService();
+    </script>
+</body>
+</html>

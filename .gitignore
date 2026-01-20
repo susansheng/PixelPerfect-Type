@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# Virtual Environment
+backend/venv/
+backend/env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 项目特定
+backend/uploads/*
+backend/outputs/*
+!backend/uploads/.gitkeep
+!backend/outputs/.gitkeep
+
+# OCR模型缓存
+.paddleocr/
+.paddlex/
+
+# 日志文件
+*.log
+server.log
+
+# 临时文件
+*.tmp
+*.temp
+.env
+.env.local
+
+# Node modules (如果前端有用到)
+node_modules/
+package-lock.json
+
+# 系统文件
+Thumbs.db
+.DS_Store
+*.bak

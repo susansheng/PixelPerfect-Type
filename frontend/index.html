@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelPerfect Type - 字体验收工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .guide-link {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .guide-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .upload-section.dragging {
+            border-color: #667eea;
+            background: #e8edff;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-section p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        .view-content {
+            display: none;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        .image-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .image-display img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .font-size-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .font-size-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .font-size-item:hover {
+            background: #f9f9f9;
+        }
+
+        .font-size-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .font-size-count {
+            background: #e8edff;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+
+        .view-description {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .view-description h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .view-description p {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #3c3;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/guide" class="guide-link">📖 使用指南</a>
+            <h1>🎨 PixelPerfect Type</h1>
+            <p>AI驱动的字体验收工具 - 自动检测UI设计稿中的字号规范</p>
+        </div>
+
+        <div class="main-panel">
+            <!-- 上传区域 -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-icon">📤</div>
+                <h3>上传UI设计稿</h3>
+                <p>支持 JPG、PNG 格式，建议上传 750px 宽度的移动端设计稿</p>
+                <input type="file" id="fileInput" accept="image/*">
+                <button class="btn btn-primary" id="selectFileBtn">选择文件</button>
+                <div id="fileName" style="margin-top: 10px; color: #666;"></div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">准备中...</div>
+            </div>
+
+            <!-- 处理按钮 -->
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" id="processBtn" style="display: none;">
+                    开始分析
+                </button>
+            </div>
+
+            <!-- 消息区域 -->
+            <div id="messageArea"></div>
+
+            <!-- 结果区域 -->
+            <div class="results-section" id="resultsSection">
+                <h2 style="margin-bottom: 20px; color: #333;">📊 分析结果</h2>
+
+                <!-- 统计卡片 -->
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <!-- 视图切换 -->
+                <div class="view-tabs" style="margin-top: 30px;">
+                    <button class="tab active" data-view="view1">View 1: 标准化</button>
+                    <button class="tab" data-view="view2">View 2: OCR识别</button>
+                    <button class="tab" data-view="view3">View 3: 字号拟合</button>
+                    <button class="tab" data-view="view4">View 4: 结果标注</button>
+                </div>
+
+                <!-- 视图内容 -->
+                <div id="view1" class="view-content active">
+                    <div class="view-description">
+                        <h4>图像标准化</h4>
+                        <p>将上传的UI截图等比缩放到750px宽度，确保后续处理的基准一致。</p>
+                    </div>
+                    <div class="image-display">
+                        <img id="normalizedImage" alt="标准化后的图片">
+                    </div>
+                </div>
+
+                <div id="view2" class="view-content">
+                    <div class="view-description">
+                        <h4>OCR文字识别</h4>
+                        <p>使用PaddleOCR识别界面中的所有文本内容及位置信息。</p>
+                    </div>
+                    <div class="image-display">
+                        <img id="ocrImage" alt="OCR识别结果">
+                    </div>
+                </div>
+
+                <div id="view3" class="view-content">
+                    <div class="view-description">
+                        <h4>字号拟合</h4>
+                        <p>通过像素重合度算法自动拟合字号，红色半透明文字表示算法渲染的结果。</p>
+                    </div>
+                    <div class="image-display">
+                        <img id="overlayImage" alt="字号拟合结果">
+                    </div>
+                </div>
+
+                <div id="view4" class="view-content">
+                    <div class="view-description">
+                        <h4>结果标注</h4>
+                        <p>最终的字号标注结果，每个文本区域都标注了检测到的字号大小。</p>
+                    </div>
+                    <div class="image-display">
+                        <img id="annotatedImage" alt="结果标注">
+                    </div>
+                    <div class="font-size-list" id="fontSizeList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/app.js"></script>
+</body>
+</html>

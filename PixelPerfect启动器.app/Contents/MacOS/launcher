@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# 获取应用所在的目录（项目根目录）
+APP_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$(dirname "$(dirname "$(dirname "$APP_PATH")")")"
+
+cd "$PROJECT_DIR"
+
+# 在新终端窗口启动服务
+osascript <<EOF
+tell application "Terminal"
+    do script "cd '$PROJECT_DIR' && ./一键安装启动.sh; echo ''; echo '按 Ctrl+C 可以停止服务'; exec bash"
+    activate
+end tell
+EOF
+
+# 等待5秒让服务启动
+sleep 5
+
+# 自动打开浏览器
+open "http://localhost:9090"
