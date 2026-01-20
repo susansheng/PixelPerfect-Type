@@ -1,0 +1,9 @@
+Flask==3.0.0
+Flask-CORS==4.0.0
+paddlepaddle==3.0.0
+paddleocr
+Pillow
+opencv-python
+numpy
+scipy
+shapely
